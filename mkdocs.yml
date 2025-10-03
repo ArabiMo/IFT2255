@@ -34,7 +34,7 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-    
+
 copyright: "&copy; 2025 <b>DIRO</b> &ndash; Template pour le cours IFT2255 (Génie logiciel) <br>Département d'informatique et de recherche opérationnelle <br>Université de Montréal"
 
 repo_name: template-rapport-ift2255
@@ -67,24 +67,23 @@ markdown_extensions:
 plugins:
   - search
 
-
 # extra_css:
 #   - css/no-sidebar.css
 
 nav:
   - Vue d'ensemble: index.md
-  - Analyse des besoins: 
-    - Présentation générale: besoins/index.md
-    - Glossaire: besoins/glossaire.md
-    - Exigences: besoins/exigences.md
-    - Risques: besoins/risques.md
-    - Cas d'utilisation: besoins/cas-utilisation.md
-    - Flux principaux: besoins/flux-principaux.md
+  - Analyse des besoins:
+      - Présentation générale: besoins/index.md
+      - Glossaire: besoins/glossaire.md
+      - Exigences: besoins/exigences.md
+      - Risques: besoins/risques.md
+      - Cas d'utilisation: besoins/cas-utilisation.md
+      - Flux principaux: besoins/flux-principaux.md
   - Conception:
-    - Présentation générale: conception/index.md
-    - Architecture: conception/architecture.md
-    - Modèle de données: conception/modeles.md
-    - Diagrammes UML: conception/uml.md
+      - Présentation générale: conception/index.md
+      - Architecture: conception/architecture.md
+      - Modèle de données: conception/modeles.md
+      - Diagrammes UML: conception/uml.md
   - Application: application.md
   - Evaluation: evaluation.md
   - Bilan: bilan.md
