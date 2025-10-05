@@ -16,7 +16,6 @@ title: Évaluation et tests
 
 - - Types de tests réalisés :
   - Tests unitaires
-  - Tests d’intégration
   - Tests manuels
 - Outils utilisés : Pytest, Postman, Selenium, etc.
 
@@ -27,6 +26,7 @@ title: Évaluation et tests
 ## Résultats des tests
 
 - Résumé qualitatif :
+
   - Comportement attendu obtenu
   - Bonne robustesse générale
 

@@ -6,30 +6,41 @@ title: Analyse des besoins - Risques
 
 ## Identification des risques
 
-### Risque 1 – Absence prolongée d’un membre clé  
+### Risque 1 – Absence prolongée d’un membre clé
 
-- **Probabilité** : basse  
-- **Impact** : Élevé  
-- **Plan de mitigation** :  
-  - Prier because we are cooked 
-  - Attente du seul membre de l'equipe (equipe de 1 personne)
+- **Probabilité** : Basse
+- **Impact** : Élevé
+- **Plan de mitigation** :
+  - Documenter les tâches et décisions.
+  - Prévoir un remplaçant au besoin.
+  - Diviser le travail en petites tâches livrables.
+  - Faire un point de suivi chaque semaine.
 
-### Risque 2 –  Manque de connaisance sur la technologie
+### Risque 2 – Manque de connaissance sur la technologie
 
-- **Probabilité** : Élevé  
-- **Impact** : faible  
-- **Plan de mitigation** :  
-  - Apprendre et lire la documentation
+- **Probabilité** : Élevée
+- **Impact** : Faible à moyen
+- **Plan de mitigation** :
+  - Lire la documentation officielle.
+  - Faire un petit prototype (1–2 jours) pour apprendre.
+  - Suivre un tutoriel clé.
+  - Demander de l’aide (forums, mentor, pair).
 
-### Risque 3 – Technologie non fittable pour le project  
+### Risque 3 – Technologie inadaptée au projet
 
-- **Probabilité** : Moyenne  
-- **Impact** : Moyenne  
-- **Plan de mitigation** :  
-  - Recherche d'une nouvelle technologie pour le project qui sera adequat
+- **Probabilité** : Moyenne
+- **Impact** : Élevé
+- **Plan de mitigation** :
+  - Définir des critères simples (coût, performance, support).
+  - Tester vite avec une preuve de concept.
+  - Préparer une option B (technologie de rechange).
+  - Valider la décision par un court compte rendu.
 
 ## Modification du processus opérationnel
 
- - Si le risque 3 happends, nous allons devoir changer le framwork and web service pour le project.
-
-> Si la mise en place du système modifie des processus internes ou des pratiques actuelles, il est essentiel de les identifier ici.
+- Si le Risque 3 arrive, nous changerons le framework et le service web.
+- **Actions** :
+  - Geler les nouvelles fonctionnalités.
+  - Ajouter des tests pour éviter les régressions.
+  - Mettre à jour la documentation et les scripts de déploiement.
+  - Informer les parties prenantes du plan et de l’échéancier.

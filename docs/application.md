@@ -14,8 +14,8 @@ title: Implémentation
 
 ## Technologies utilisées
 
-- Langage principal : Python / JavaScript / etc.
-- Frameworks : Flask, React, etc.
+- Langage principal : Java.
+- Frameworks : Spring.
 - Base de données : PostgreSQL
 - Outils de développement : Git, Docker, VSCode
 

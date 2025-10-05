@@ -37,11 +37,7 @@ Importantes : EF4, EF6, ENF2.
 
 ## Infrastructures
 
-> Informations sur l’environnement d’exécution cible, les outils ou plateformes nécessaires.
-
 - Le système sera hébergé sur un serveur Ubuntu 22.04.
 - Base de données : PostgreSQL version 15 avec Spring Data JPA.
 - Serveur Web : Spring Web.
 - Framework principal : Spring Boot 3.
-
-<!-- TODO: Compléter selon le stack technique prévu. -->
