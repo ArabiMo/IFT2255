@@ -6,78 +6,42 @@ title: Analyse des besoins - Flux principaux
 
 ## Objectif
 
-Décrire les flux d’interaction entre les acteurs et le système.
+Décrire les flux d’interaction principaux entre les acteurs et le système, sous forme de diagramme d’activité UML, afin de clarifier l’enchaînement des actions, les décisions et les scénarios de réussite/échec.
 
-## Diagrammes
+## Flux 1 – Rechercher un cours
 
-Inscription
+### Diagramme d’activité UML
 
-![image info](Inscription.png)
+![Diagramme d’activité – Rechercher un cours](DiagrammeActivite.png)
 
-    Visiteur ouvre « S’inscrire ».
+*(Le diagramme montre deux swimlanes : « Étudiant » et « Système ». Les actions de l’étudiant et du système sont ordonnées de gauche à droite, avec des décisions pour les cas d’erreur ou d’absence de résultat.)*
 
-    Saisit e-mail, mot de passe, (optionnel) prénom/nom.
+### Description textuelle du flux
 
-    Validations : format e-mail, force du mot de passe.
+**Acteur principal :** Étudiant  
+**But :** Trouver rapidement des cours pertinents en fonction d’un code, d’un titre ou de mots-clés.
 
-    AuthService émet un token (JWT/cookie) et redirige vers tableau de bord.
+#### Scénario principal
 
-Connexion
+1. L’étudiant ouvre la page de recherche de cours.  
+2. Le système affiche le formulaire de recherche.  
+3. L’étudiant saisit un code, un titre ou un mot-clé (par exemple « IFT2015 », « programmation », « IA »).  
+4. L’étudiant clique sur le bouton « Rechercher ».  
+5. Le système valide les critères de recherche (champ non vide, format minimalement correct).  
+6. Le système interroge la base de données des cours avec les critères fournis.  
+7. Le système trouve au moins un cours correspondant.  
+8. Le système construit la liste des résultats (code, titre, crédits, session, etc.).  
+9. Le système affiche la liste des cours à l’écran.  
+10. L’étudiant consulte la liste et peut éventuellement sélectionner un cours pour afficher sa fiche détaillée.
 
-![image info](Connexion.png)
+#### Scénario alternatif A – Aucun cours correspondant
 
-    Utilisateur ouvre « Se connecter ».
+5A. Les critères sont valides, mais la recherche ne retourne aucun cours.  
+6A. Le système affiche un message du type « Aucun cours ne correspond à votre recherche. Veuillez vérifier vos critères ou élargir votre recherche. ».  
+7A. L’étudiant peut modifier les critères et relancer une recherche.
 
-    Saisit identifiant (e-mail) et mot de passe.
+#### Scénario alternatif B – Critères invalides
 
-    AuthService compare le hachage, vérifie l’état (active).
-
-    Émission token.
-
-    Redirection vers tableau de bord.
-
-Réinitialiser mot de passe
-
-![image info](Rdmdp.png)
-
-    Utilisateur clique « Mot de passe oublié ».
-
-    Repondre au question unique.
-
-    Utilisateur ouvre le lien, saisit un nouveau mot de passe (et confirmation).
-
-    AuthService invalide le jeton, met à jour le hachage du mot de passe.
-
-Déconnexion
-
-![image info](Deconnexion.png)
-
-    Utilisateur clique « Se déconnecter ».
-
-    AuthService marque le token comme revoked.
-
-    Suppression du cookie côté client, redirection vers page publique.
-
-Consulter tableau de bord
-
-![image info](consultation.png)
-
-    Utilisateur authentifié accède au tableau de bord.
-
-    AuthService vérifie le token/permissions (rôles/scopes).
-
-    API rendu conditionnel selon préférences
-
-Rechercher & filtrer
-
-![image info](filtre.png)
-
-    Utilisateur ouvre une table avec barre de recherche, filtres, tri, pagination.
-
-    Saisie terme(s) → debounce  → requête SearchAPI.
-
-    Sélection de filtres  → mise à jour des résultats.
-
-    Tri (colonne, ordre) et navigation (page suivante/précédente).
-
-    Affichage résultats paginés + compteur total.
+5B. Les critères de recherche sont invalides (par exemple champ vide).  
+6B. Le système affiche un message d’erreur expliquant le problème (ex. « Veuillez entrer au moins un critère de recherche. »).  
+7B. L’étudiant corrige les critères et relance la recherche.

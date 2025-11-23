@@ -10,67 +10,73 @@ Ce document décrit les cas d’utilisation principaux du système, leur portée
 
 ## Liste des cas d’utilisation
 
-| ID   | Nom                        | Acteurs principaux | Description                                          |
-| ---- | -------------------------- | ------------------ | ---------------------------------------------------- |
-| CU01 | Connexion                  | Utilisateur        | L’utilisateur s’authentifie pour accéder au système. |
-| CU02 | Inscription                | Visiteur           | Création d’un compte utilisateur.                    |
-| CU03 | Réinitialiser mot de passe | Utilisateur        | Récupération d’accès via question unique.            |
-| CU04 | Déconnexion                | Utilisateur        | Terminer la session en cours.                        |
-| CU04 | Consulter tableau de bord  | Utilisateur        | Accéder aux fonctionnalités de base après connexion. |
-| CU04 | Rechercher & filtrer       | Utilisateur        | Rechercher des éléments avec critères et pagination. |
+| ID   | Nom                            | Acteurs principaux      | Description                                                                                 |
+| ---- | ------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------- |
+| CU01 | Rechercher un cours            | Étudiant                | L’étudiant recherche un cours par code, titre ou mot-clé.                                  |
+| CU02 | Consulter une fiche de cours   | Étudiant                | L’étudiant consulte les informations détaillées d’un cours.                                |
+| CU03 | Comparer plusieurs cours       | Étudiant                | L’étudiant sélectionne plusieurs cours et compare leur charge et leurs horaires.           |
+| CU04 | Gérer son profil étudiant      | Étudiant authentifié    | L’étudiant crée ou modifie son profil (préférences et contraintes).                        |
+| CU05 | Consulter les avis d’un cours  | Étudiant                | L’étudiant consulte les avis anonymisés donnés par d’autres étudiants sur un cours.        |
+| CU06 | Importer les données externes  | Administrateur          | L’administrateur lance ou surveille l’importation des données Planifium et des résultats.  |
+
+---
 
 ## Détail
 
-### CU01 - Connexion
+### CU01 – Rechercher un cours
 
-**Acteurs** : Utilisateur (principal)
-**Préconditions** : Le compte existe et n’est pas supprimé.
-**PostConditions** : Une session valide (token/JWT/cookie) est émise et associée à l’utilisateur.
-**Déclencheur** : L’utilisateur souhaite accéder à une fonctionnalité nécessitant une authentification (clic sur « Se connecter » ou accès à une ressource protégée).
-**Dépendances** : Service d’authentification (vérification des identifiants, hachage). Base de données des utilisateurs et des rôles.
-**But** : Vérifier l’identité de l’utilisateur et établir une session sécurisée.
+**Acteurs** :  
+- Acteur principal : Étudiant (invité ou authentifié)
 
-### CU02 - Inscription
+**Préconditions** :  
+- Le système est disponible.  
+- Les données de cours sont chargées dans la base (import initial déjà effectué).
 
-**Acteurs** : Visiteur (principal)
-**Préconditions** : Le visiteur n’a pas encore de compte actif avec le même identifiant (e‑mail/numéro)
-**PostConditions** : Un compte est créé.
-**Déclencheur** : Le visiteur clique sur « S’inscrire » ou tente d’accéder à une fonctionnalité nécessitant un compte et choisit de créer un compte.
-**Dépendances** : Service d’identité
-**But** : Permettre à un nouveau visiteur de créer de manière sécurisée un compte utilisateur utilisable par le système.
+**Postconditions** :  
+- Une liste de cours correspondant aux critères de recherche est affichée à l’étudiant (ou un message indiquant qu’aucun cours ne correspond).  
+- Les critères de recherche saisis peuvent être réutilisés pour une nouvelle recherche (facultatif).
 
-### CU03 - Réinitialiser mot de passe
+**Déclencheur** :  
+- L’étudiant souhaite trouver un cours à partir d’un code (ex. « IFT2015 »), d’un titre ou d’un mot-clé (ex. « programmation », « IA »), et ouvre la page de recherche.
 
-**Acteurs** : Utilisateur (principal)
-**Préconditions** : Le compte existe
-**PostConditions** : Mot de passe mis à jour
-**Déclencheur** : L’utilisateur choisit « Mot de passe oublié ? »
-**Dépendances** : Service d’identité
-**But** : Restaurer l’accès de manière sécurisée sans divulguer d’informations sensibles.
+**But** :  
+Permettre à l’étudiant de **trouver rapidement des cours pertinents** en fonction de ses intérêts ou de contraintes précises (code, titre, mots-clés), afin de préparer son choix de cours pour une session donnée.
 
-### CU04 - Déconnexion
+---
 
-**Acteurs** : Utilisateur (principal)
-**Préconditions** : Session active
-**PostConditions** : Jetons révoqués côté serveur
-**Déclencheur** : Clic sur « Se déconnecter »
-**Dépendances** : Gestionnaire de session/token
-**But** : Mettre fin à la session de manière sécurisée
+#### Scénario principal de réussite (CU01-SP)
 
-### CU05 - Consulter tableau de bord
+1. L’étudiant accède à la page de recherche de cours.
+2. Le système affiche un champ de recherche et, éventuellement, quelques filtres simples (par exemple cycle, nombre de crédits, session).
+3. L’étudiant saisit un critère de recherche (code, titre ou mot-clé) dans le champ prévu.
+4. L’étudiant lance la recherche (par exemple en appuyant sur « Rechercher »).
+5. Le système interroge la base de données des cours en utilisant les critères saisis.
+6. Le système retourne une liste de cours correspondant à la recherche, triée par pertinence (code exact en premier, puis titres/mots-clés).
+7. Le système affiche pour chaque cours un résumé (code, titre, cycle, nombre de crédits, session).
+8. L’étudiant parcourt la liste et peut sélectionner un cours pour consulter sa fiche détaillée (transition vers CU02 – Consulter une fiche de cours).
 
-**Acteurs** : Utilisateur (principal)
-**Préconditions** : Authentification réussie
-**PostConditions** : Widgets/données rendus selon permissions ; préférences utilisateur
-**Déclencheur** : Redirection après connexion ou navigation explicite
-**Dépendances** : API de données
-**But** : Offrir une vue synthèse personnalisée des informations et actions clés.
+---
 
-### CU06 - Rechercher & filtrer
+#### Scénario alternatif A – Aucun résultat (CU01-SA1)
 
-**Acteurs** : Utilisateur (principal)
-**Préconditions** : Données disponibles et indexées, ou API de recherche prête
-**PostConditions** : Résultats paginés/triés
-**Déclencheur** : L’utilisateur saisit des termes, applique des filtres, change le tri/pagination.
-**Dépendances** : API de listing/recherche
-**But** : Permettre de localiser rapidement des éléments selon des critères combinés
+4A. L’étudiant lance la recherche avec un critère très spécifique ou mal orthographié.  
+5A. Le système interroge la base de données mais ne trouve aucun cours correspondant.  
+6A. Le système affiche un message du type :  
+   - « Aucun cours ne correspond à votre recherche. »  
+   - Et propose éventuellement des suggestions (par ex. vérifier l’orthographe ou élargir les mots-clés).  
+7A. L’étudiant peut modifier ses critères et relancer la recherche (retour à l’étape 3 du scénario principal).
+
+---
+
+#### Scénario alternatif B – Problème temporaire d’accès aux données (CU01-SA2)
+
+5B. En interrogeant la base, le système rencontre un problème (ex. service de données indisponible).  
+6B. Le système consigne l’erreur dans les journaux (log).  
+7B. Le système affiche un message d’erreur compréhensible pour l’étudiant (par ex. « La recherche est momentanément indisponible. Veuillez réessayer plus tard. »).  
+8B. L’étudiant peut soit réessayer plus tard, soit revenir à la page d’accueil.
+
+---
+
+#### Diamgramme de cas
+
+![image info](CasUtilisation.png)
