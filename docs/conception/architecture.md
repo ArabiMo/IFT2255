@@ -6,117 +6,93 @@ title: Conception - Architecture
 
 ## Vue d’ensemble
 
-- **Type** : Application web monolithique exposant une API REST (Backend Java Spring Boot + Frontend web)
+- **Type** : Application web monolithique exposant une API REST (**Backend Java Javalin** + Frontend web).
 - **Contexte** : Plateforme de choix de cours pour les étudiant·e·s de l’UdeM, en priorité ceux du DIRO.
 - **Raisons du choix** :
-  - Équipe très réduite → limiter la complexité opérationnelle.
-  - Mise en place et déploiement rapides (un seul backend, une seule base de données).
-  - Cohérence des données (une base unique pour cours, profils et avis).
-  - Architecture suffisante pour un projet académique, avec possibilité d’évolution ultérieure.
+  - Équipe réduite → architecture simple à développer et à comprendre.
+  - Déploiement rapide : un seul backend et une logique centralisée.
+  - Suffisant pour un projet académique, avec possibilité d’évolution plus tard.
 
 ## Composants principaux
 
-- **Frontend (interface web)**  
-  - Application web (ex. React/Vite) accessible via navigateur (desktop et mobile).  
-  - Affiche les pages de recherche, fiches de cours, comparaison, gestion du profil.  
-  - Appelle l’API backend via HTTP(S) (JSON).
+- **Frontend (interface web)**
 
-- **API Backend (Spring Boot 3)**  
+  - Application web accessible via navigateur (desktop et mobile).
+  - Permet : recherche de cours, fiche détaillée, comparaison et gestion du profil.
+  - Communique avec le backend via HTTP(S) et reçoit du JSON.
+
+- **API Backend (Java / Javalin)**
+
   - Fournit une API REST pour :
     - Recherche de cours et consultation de fiches détaillées.
-    - Comparaison de cours (charge de travail, conflits d’horaire).
-    - Gestion des profils étudiants (préférences et contraintes).
-    - Consultation et intégration d’avis anonymisés.
-    - Lancement et supervision des tâches d’import de données.
-  - Services techniques :
-    - Validation des requêtes et des données métier.
-    - Journalisation (logs) et suivi des erreurs.
-    - Tâches planifiées pour l’import périodique des données.
+    - Récupération des préalables d’un cours.
+    - Gestion des utilisateurs (inscription, connexion, modification, suppression).
+    - Réception d’avis transmis par un bot Discord (fonctionnalité prévue).
+  - La logique métier est dans les services, appelés par les controllers.
 
-- **Base de données**  
-  - **PostgreSQL 15**  
-  - Accès via **Spring Data / JPA**.  
-  - Stocke :
-    - Métadonnées des cours (enrichies à partir de Planifium).
-    - Profils étudiants (avec minimisation des données personnelles).
-    - Avis anonymisés et statistiques dérivées.
-    - Informations sur les imports (traces, dates, sources).
+- **Stockage interne**
 
-- **Intégrations externes**  
-  - **Planifium** : lecture des informations officielles (cours, horaires, préalables).  
-  - **Service des résultats** : import des résultats agrégés (moyennes, taux d’échec, etc.).  
-  - **Serveur Discord étudiant** : réception d’avis d’étudiant·e·s sous forme structurée (JSON), via un bot ou un webhook.
+  - **Fichier JSON (`users.json`)**
+  - Les utilisateurs sont persistés via `JsonUserRepository`.
+
+- **Intégrations externes**
+  - **Planifium** : source officielle des cours/horaire/préalables (API en lecture).
+  - **Serveur Discord étudiant** : les avis sont écrits sur Discord puis envoyés à notre système par un bot.
 
 ## Communication entre composants
 
-- **Frontend ↔ Backend** :  
-  - Protocole : HTTP(S)  
-  - Style : REST/JSON  
-  - Exemples : `/courses/search`, `/courses/{code}`, `/profile`, `/reviews`.
+- **Frontend ↔ Backend** :
 
-- **Backend ↔ Base de données** :  
-  - Accès via JPA / Hibernate (JDBC sous-jacent).  
-  - Migrations gérées (ex. Flyway ou Liquibase) pour versionner le schéma.
+  - Protocole : HTTP(S)
+  - Style : REST/JSON
+  - Exemples d’endpoints :
+    - `/courses`
+    - `/courses/{id}`
+    - `/courses/{id}/prerequisites`
+    - `/users/register`, `/users/login`, `/users/{id}`
 
-- **Backend ↔ Systèmes externes** :  
-  - Planifium : consommation d’une API en lecture seule.  
-  - Service des résultats : import de fichiers agrégés fournis (ex. CSV) via un module d’import.  
-  - Discord : réception d’appels HTTP (webhook) contenant des avis structurés (JSON).
+- **Backend ↔ Stockage JSON** :
 
-- **Sécurité (niveau conception)** :
-  - Authentification : par exemple JWT ou session serveur (selon le choix de réalisation).  
-  - Chiffrement des communications : HTTPS (TLS) entre le frontend et le backend.  
-  - Gestion des rôles : au minimum **Étudiant** et **Administrateur** pour restreindre l’accès aux fonctionnalités sensibles (imports, modération).
+  - `UserService` lit et écrit les utilisateurs via `JsonUserRepository` dans `users.json`.
+
+- **Backend ↔ Systèmes externes** :
+  - Planifium : appels HTTP en lecture via `HttpClientApi`.
+  - Discord : le bot envoie une requête HTTP contenant un avis structuré (JSON).
 
 ## Flux techniques clés
 
-- **Recherche de cours** :  
-  - Frontend appelle l’API `/courses/search` avec les critères (code, titre, mots-clés, filtres).  
-  - Le backend interroge la base, applique la pagination/tri, renvoie une liste de résultats.  
+- **Recherche de cours** :
 
-- **Consultation d’une fiche de cours** :  
-  - Frontend appelle `/courses/{code}`.  
-  - Le backend assemble les informations : métadonnées, statistiques agrégées, avis anonymisés.
+  - Le frontend appelle l’API `/courses` avec des filtres (session, mots-clés, etc.).
+  - `CourseService` interroge Planifium et renvoie la liste des cours.
 
-- **Comparaison de cours** :  
-  - Frontend envoie une liste de codes de cours à l’API.  
-  - Le backend calcule la charge totale estimée, détecte les conflits d’horaire, et renvoie un résumé comparatif.
+- **Consultation d’une fiche de cours** :
 
-- **Import des données externes** :  
-  - Un administrateur ou une tâche planifiée déclenche un import.  
-  - Le backend appelle Planifium et lit les fichiers de résultats.  
-  - Les données sont validées, transformées et persistées dans PostgreSQL.
+  - Le frontend appelle `/courses/{id}`.
+  - Le backend récupère le cours dans Planifium et le retourne.
 
-- **Gestion des erreurs** :  
-  - Codes HTTP explicites (400, 401, 403, 404, 409, 500).  
-  - Corps de réponse JSON avec un message clair et un code d’erreur applicatif.  
-  - Journalisation des erreurs côté serveur.
+- **Préalables d’un cours** :
 
-## Déploiement
+  - Le frontend appelle `/courses/{id}/prerequisites`.
+  - Le backend demande à Planifium la liste des préalables et la renvoie.
 
-- **Environnement cible** : serveur Ubuntu 22.04.  
-- **Empaquetage** :
-  - Backend Spring Boot en image Docker.  
-  - Frontend web servi soit par un serveur statique (Nginx), soit via le backend.  
-  - Base PostgreSQL : conteneur Docker ou service managé (selon le contexte).
+- **Soumission d’avis (via Discord)** :
 
-- **Réseau** :
-  - Frontend → Backend via HTTPS.  
-  - Backend → PostgreSQL via réseau interne sécurisé.  
-  - Backend → Planifium / Service des résultats / Discord via Internet (sortant).
+  - L’étudiant écrit un avis sur Discord.
+  - Le bot le transforme en JSON et l’envoie à l’API du backend.
+  - Le backend valide et enregistre l’avis (à intégrer dans le système).
 
-- **CI/CD (optionnel)** :
-  - Pipeline automatisé pour : build, tests, analyse statique, génération d’images Docker, déploiement.
+- **Gestion des erreurs** :
+  - Codes HTTP explicites (400, 401, 404, 500, etc.).
+  - Réponse JSON simple avec un message clair (`ResponseUtil.formatError`).
 
-- **Sauvegardes** :
-  - Sauvegardes régulières de la base PostgreSQL (dumps, snapshots).  
-  - Versionnement des scripts/migrations de base de données.
+## Déploiement (version actuelle)
 
-## Performance & Scalabilité
-
-- Index sur les colonnes fréquemment filtrées ou triées (code de cours, titre, session, etc.).  
-- Cache léger pour certaines listes relativement stables (ex. liste des cours d’une session).  
-- Possibilité de scaler horizontalement le backend (plusieurs instances derrière un reverse proxy) si la charge augmente.
+- Projet conçu pour fonctionner simplement :
+  - Backend lancé localement (Java).
+  - Frontend servi via navigateur.
+  - Connexions externes via Internet (Planifium, Discord).
+- Une base de données et un déploiement cloud peuvent être ajoutés plus tard si le projet évolue.
 
 ---
 
@@ -126,31 +102,32 @@ title: Conception - Architecture
 
 ![C4 Niveau 1 – Contexte du système](C4_1.png)
 
-Ce diagramme montre la plateforme de choix de cours au centre, entourée :
+Ce diagramme montre la plateforme au centre, entourée :
+
 - des **acteurs humains** (Étudiant, Étudiant authentifié, Administrateur) ;
-- des **systèmes externes** (Planifium, Service des résultats, Serveur Discord étudiant).  
-Il illustre qui interagit avec le système et dans quel but (consulter, comparer, importer, fournir des avis).
+- des **systèmes externes** (API Planifium, Serveur Discord étudiant).  
+  Il illustre qui interagit avec le système et pourquoi (rechercher, consulter, comparer, fournir des avis).
 
 ### Niveau 2 – Conteneurs
 
 ![C4 Niveau 2 – Conteneurs](C4_2.png)
 
-Ce diagramme détaille les **conteneurs** internes de la plateforme :
-- **Frontend Web** : application utilisée par les étudiant·e·s et l’administrateur.  
-- **API REST Spring Boot** : cœur applicatif qui implémente les cas d’utilisation métier.  
-- **Processus d’import de données** : module chargé de communiquer avec Planifium, le Service des résultats, et de traiter les avis Discord.  
-- **Base de données PostgreSQL** : persistance des cours, profils, avis et métadonnées d’import.  
+Ce diagramme détaille les conteneurs internes actuels :
 
-Il montre aussi les liens de communication entre ces conteneurs et les systèmes externes.
+- **Frontend Web** : interface utilisée par les étudiant·e·s et l’administrateur.
+- **API REST Javalin** : cœur applicatif qui reçoit les requêtes et applique la logique métier.
+- **Stockage JSON (`users.json`)** : persistance des utilisateurs.
+
+Il montre aussi les liens de communication avec Planifium et Discord.
 
 ### Niveau 3 – Composants de l’API REST
 
 ![C4 Niveau 3 – Composants API](C4_3.png)
 
-Ce diagramme zoome sur le conteneur **API REST** et présente les **composants internes** :
-- **Contrôleurs REST** (CourseController, ProfileController, ReviewController, AdminImportController).  
-- **Services métier** (CourseSearchService, CourseDetailsService, ProfileService, ReviewService, ImportService).  
-- **Adaptateurs externes** (PlanifiumAdapter, ResultatsAdapter, DiscordReviewAdapter) pour isoler les appels aux systèmes externes.  
-- **Repositories** Spring Data (CourseRepository, ProfileRepository, ReviewRepository) qui accèdent à PostgreSQL.
+Le backend est séparé en trois couches :
 
-Ce niveau montre comment l’API est structurée pour séparer les responsabilités, faciliter les tests et permettre l’évolution future de l’architecture.
+- **Controllers** : reçoivent les requêtes, valident les entrées et appellent les services.
+- **Services** : contiennent la logique principale (`CourseService`, `UserService`).
+- **Repository JSON** : gère la sauvegarde des utilisateurs (`JsonUserRepository`).
+
+Cette structure sépare bien les responsabilités et rend le système facile à maintenir et à faire évoluer.
