@@ -116,7 +116,7 @@ Ce diagramme détaille les conteneurs internes actuels :
 
 - **Frontend Web** : interface utilisée par les étudiant·e·s et l’administrateur.
 - **API REST Javalin** : cœur applicatif qui reçoit les requêtes et applique la logique métier.
-- **Stockage JSON (`users.json`)** : persistance des utilisateurs.
+- **Stockage JSON (`users.json`)** : persistance des utilisateurs. (Dans l'image c'est postgreSql, mais pour des raison pratiques celui deviendra un json dans le c4_3. réalité du terrain)
 
 Il montre aussi les liens de communication avec Planifium et Discord.
 
