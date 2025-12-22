@@ -14,10 +14,10 @@ title: Implémentation
 
 ## Technologies utilisées
 
-- Langage principal : Java.
-- Frameworks : Spring.
-- Base de données : PostgreSQL
-- Outils de développement : Git, Docker, VSCode
+- Langage principal : Java, C#
+- Frameworks : Spring, .NET
+- Base de données : Json
+- Outils de développement : Git, VSCode
 
 ## Organisation du code
 
